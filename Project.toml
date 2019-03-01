@@ -7,15 +7,15 @@ repository = "https://github.com/wildart/TDA.jl.git"
 version = "0.1.0"
 
 [deps]
+Clustering = "aaaa29a8-35af-508c-8bc3-b662a17a0fe5"
 ComputationalHomology = "9393a4d0-be1e-45b0-9991-b60434c721e6"
 LinearAlgebra = "37e2e46d-f89d-539d-b4ee-838fcccc9c8e"
-Statistics = "10745b16-79ce-11e8-11f9-7d13ad32a3b2"
-Clustering = "aaaa29a8-35af-508c-8bc3-b662a17a0fe5"
 RecipesBase = "3cdcf5f2-1ef4-517c-9805-6587b60abb01"
+SmithNormalForm = "ba71f38f-f508-439b-ac77-437f86a20aa1"
+Statistics = "10745b16-79ce-11e8-11f9-7d13ad32a3b2"
 
 [extras]
 Test = "8dfed614-e22c-5e08-85e1-65c5234f0b40"
 
 [targets]
 test = ["Test"]
-
