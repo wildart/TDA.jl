@@ -28,6 +28,7 @@
                 ispoint && skipzero && continue
                 @series begin
                     title := "Degree $d"
+                    titlefontsize --> 12
                     linewidth --> 2
                     subplot := pi
                     primary := true
