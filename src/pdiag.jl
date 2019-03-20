@@ -1,17 +1,24 @@
-# Plot intervals as a persistance diagram or barcode
 @recipe function f(ints::Vector{Interval};
-        maxoutdim=1,
-        skipzero = false)
+                   maxoutdim=1,
+                   skipzero = false)
+    # get interval dimensions
+    dims = unique(map(i->i.dim, ints))
+    # group intervals by dimensions
+    Dict(d=>filter(i->i.dim==d, ints) for d in dims)
+end
+
+# Plot intervals as a persistance diagram or barcode
+@recipe function f(grints::Dict{Int, Vector{Interval}};
+                   maxoutdim=1,
+                   skipzero = false)
     # set default plot type
     seriestype --> :diagram
 
     # get interval dimensions
-    dims = unique(map(i->i.dim, ints))
+    vals = vcat(([i.b, i.d] for i in vcat(values(grints)...))...)
+    dims = [d for d in sort!(filter!(d->d<=maxoutdim, collect(keys(grints))))]
     # compute range of intervals
-    vals = vcat(([i.b, i.d] for i in ints)...)
     minval, maxval = extrema(filter!(!isinf, vals))
-    # group intervals by dimensions
-    grints = Dict(d=>filter(i->i.dim==d, ints) for d in dims)
 
     if plotattributes[:seriestype] == :barcode # Barcode
         #xticks := minval:maxval
