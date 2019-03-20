@@ -48,7 +48,7 @@ plot!(cplx, D, linewidth = 2) # or plot(cplx)
 ## TODO
 
 - [ ] Graphs
-    - [x] Persistance diagram
+    - [x] Persistance Diagram
     - [x] Barcode
     - [x] Simplicial Complex Nerve
     - [ ] Landscape
