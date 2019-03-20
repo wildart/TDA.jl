@@ -1,16 +1,19 @@
 # Plot intervals as a persistance diagram or barcode
-@recipe function f(ints::Dict{Int, Vector{Interval}};
-        maxoutdim=length(ints),
+@recipe function f(ints::Vector{Interval};
+        maxoutdim=1,
         skipzero = false)
     # set default plot type
     seriestype --> :diagram
 
-    vals = vcat(([i.b, i.d] for i in vcat(values(ints)...))...)
+    # get interval dimensions
+    dims = unique(map(i->i.dim, ints))
+    # compute range of intervals
+    vals = vcat(([i.b, i.d] for i in ints)...)
     minval, maxval = extrema(filter!(!isinf, vals))
-    #col = vcat(map(l->map(i->isinf(i.d) ? :red : :auto ,l), ints)...)
-    dims = [d for d in sort!(filter!(d->d<=maxoutdim, collect(keys(ints))))]
+    # group intervals by dimensions
+    grints = Dict(d=>filter(i->i.dim==d, ints) for d in dims)
 
-    if plotattributes[:seriestype] == :barcode # Persistance Barcode
+    if plotattributes[:seriestype] == :barcode # Barcode
         #xticks := minval:maxval
         xlims  := (minval, maxval*1.01)
         yticks := nothing
@@ -18,12 +21,12 @@
         legend := :none
         layout := (length(dims),1)
         for (pi, d) in enumerate(dims)
-            dmaxval = max(maxval, foldl(max, filter(!isinf, map(i->i.d, ints[d])); init=-Inf))
-            dminval = min(minval, foldl(min, filter(!isinf, map(i->i.b, ints[d])); init=Inf))
-            points = map(i -> i.b == i.d, ints[d])
-            step = 1 / (skipzero ? sum(.!points) : length(ints[d]))
+            dmaxval = max(maxval, foldl(max, filter(!isinf, map(i->i.d, grints[d])); init=-Inf))
+            dminval = min(minval, foldl(min, filter(!isinf, map(i->i.b, grints[d])); init=Inf))
+            points = map(i -> i.b == i.d, grints[d])
+            step = 1 / (skipzero ? sum(.!points) : length(grints[d]))
             y = step
-            for (i, ispoint) in zip(ints[d], points)
+            for (i, ispoint) in zip(grints[d], points)
                 xs, ys = [i.b, isinf(i.d) ? maxval : i.d], [y, y]
                 ispoint && skipzero && continue
                 @series begin
@@ -43,12 +46,12 @@
         end
     else # Persistance Diagram
         padding = (maxval - minval)*0.01 # 3%
-        xs = map(l->map(i->i.b,l), ints[d] for d in dims)
-        ys = map(l->map(i->isinf(i.d) ? maxval : i.d,l), ints[d] for d in dims)
-        mkr = map(l->map(i->isinf(i.d) ? :rect : :circle,l), ints[d] for d in dims)
+        xs = map(l->map(i->i.b,l), grints[d] for d in dims)
+        ys = map(l->map(i->isinf(i.d) ? maxval : i.d,l), grints[d] for d in dims)
+        mkr = map(l->map(i->isinf(i.d) ? :rect : :circle,l), grints[d] for d in dims)
         legend --> :bottomright
         legendtitle --> "Homology"
-        label --> ["Degree $(i-1)" for i in 1:length(ints)]
+        label --> ["Degree $(i-1)" for i in 1:length(grints)]
         #xticks := minval:maxval
         xlims := (minval-padding, maxval+padding)
         xlabel := "birth"
