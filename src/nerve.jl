@@ -1,10 +1,8 @@
 # Plot a simplicial complex nerve (graph)
 @recipe function f(cplx::T, args...) where {T<:SimplicialComplex}
-    cls = cells(cplx, 1)
     data = length(args) > 0 ? args[1] :
-         mapslices(p->p./sqrt(sum(p.^2)), randn(length(cls),2), dims=2)
-
-    for (i,c) in enumerate(cls)
+                              circlepoints(size(cplx, 0)+1, 1.0)
+    for (i,c) in enumerate(cells(cplx, 1))
         pts = data[values(c),:]
         @series begin
             seriestype := :path
