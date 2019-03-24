@@ -1,4 +1,4 @@
-# Plot a simplicial complex nerve (graph)
+# Plot a 1D simplicial subcomplex (graph) of `cplx`
 @recipe function f(cplx::T, args...) where {T<:SimplicialComplex}
     data = length(args) > 0 ? args[1] :
                               circlepoints(size(cplx, 0)+1, 1.0)
@@ -13,4 +13,3 @@
         end
     end
 end
-
