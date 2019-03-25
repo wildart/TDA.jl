@@ -76,10 +76,14 @@ plot(mpr, c=:viridis, complex_layout=TDA.constant_layout)
 
 ## TODO
 
-- [ ] Graphs
+- [ ] Plots
     - [x] Persistance Diagram
     - [x] Barcode
     - [x] 1D Simplicial Subcomplex (Graph)
     - [ ] Landscape
-- [ ] Ripser
-- [x] Mapper
+- [ ] Mapper
+    - [ ] Clustering
+        - [x] K-means
+        - [ ] Hierarchical
+    - [ ] Mode filter functions
+    - [x] Plots
