@@ -1,22 +1,21 @@
 """
 
-    spring_layout(cplx[; C=2.0, maxiter=100, seed=0])
+    spring_layout(mpr[; C=2.0, maxiter=100, seed=0])
 
-Calculate a 1D simplicial complex layout using spring/repulsion model.
+Calculate a 1-skeleton of the Mapper complex `mpr` layout using spring/repulsion model.
 
 This borrows with modifications from [GraphPlot](https://github.com/JuliaGraphs/GraphPlot.jl)
 
 # Arguments
-- `cplx::SimplicialComplex`: the simplicial complex.
+- `mpr::Mapper`: the Mapper complex.
 - `C::Real`: the constant to fiddle with density of resulting layout.
 - `maxiter::Integer`: the number of iterations we apply the forces.
 - `starttemp::Real`: the initial "temperature", controls movement per iteration.
 - `seed::Integer`: the seed for pseudorandom generation of locations (default = 0).
 """
-function spring_layout(cplx::SimplicialComplex, locs_x, locs_y; C=2.0, maxiter=100, starttemp=2.0) where {T<:Integer}
+function spring_layout(adj::AbstractMatrix, locs_x, locs_y; C=2.0, maxiter=100, starttemp=2.0) where {T<:Integer}
 
-    N = size(cplx, 0)
-    adj_matrix = adjacency_matrix(cplx)
+    N = size(adj, 1)
 
     # The optimal distance bewteen vertices
     K = C * sqrt(4.0 / N)
@@ -35,7 +34,7 @@ function spring_layout(cplx::SimplicialComplex, locs_x, locs_y; C=2.0, maxiter=1
                 d_x = locs_x[j] - locs_x[i]
                 d_y = locs_y[j] - locs_y[i]
                 d   = sqrt(d_x^2 + d_y^2)
-                if adj_matrix[i,j] != zero(eltype(adj_matrix)) || adj_matrix[j,i] != zero(eltype(adj_matrix))
+                if adj[i,j] != zero(eltype(adj)) || adj[j,i] != zero(eltype(adj))
                     # F = d^2 / K - K^2 / d
                     F_d = d / K - K^2 / d^2
                 else
@@ -80,30 +79,29 @@ function spring_layout(cplx::SimplicialComplex, locs_x, locs_y; C=2.0, maxiter=1
 end
 
 import Random
-function spring_layout(cplx::SimplicialComplex; seed::Integer=0, xs=nothing, ys=nothing, kwargs...)
-    N = size(cplx, 0)
+function spring_layout(adj::AbstractMatrix; seed::Integer=0, xs=nothing, ys=nothing, kwargs...)
+    N = size(adj, 1)
     rng = Random.MersenneTwister(seed)
-    spring_layout(cplx, xs === nothing ? 2 .* rand(rng, N) .- 1.0 : xs,
+    spring_layout(adj, xs === nothing ? 2 .* rand(rng, N) .- 1.0 : xs,
                         ys === nothing ? 2 .* rand(rng, N) .- 1.0 : ys ; kwargs...)
 end
 
 function spring_layout(mpr::Mapper; seed::Integer=0, random::Bool=false, kwargs...)
     xs = random ? nothing : mpr.centers[1,:]
     ys = random ? nothing : mpr.centers[2,:]
-    spring_layout(mpr.complex; xs=xs, ys=ys, kwargs...)
+    spring_layout(mpr.adj; xs=xs, ys=ys, kwargs...)
 end
 
 """
-    circular_layout(cplx)
+    circular_layout(mpr)
 
-Arranges verticies of a 1D simplicial complex on a circle.
+Arranges verticies of a 1-skeleton of the Mapper complex `mpr` on a circle.
 """
-circular_layout(cplx::SimplicialComplex) = circlepoints(size(cplx, 0)+1, 1.0)
-circular_layout(mpr::Mapper) = circular_layout(mpr.complex)
+circular_layout(adj::AbstractMatrix) = circlepoints(size(adj, 1)+1, 1.0)
+circular_layout(mpr::Mapper) = circular_layout(mpr.adj)
 
 function constant_layout(data::AbstractMatrix)
     inner_layout(cplx::SimplicialComplex) = (data[1,:], data[2,:])
     return inner_layout
 end
-
 constant_layout(mpr::Mapper) = (mpr.centers[1,:], mpr.centers[2,:])

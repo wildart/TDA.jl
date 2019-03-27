@@ -1,12 +1,13 @@
 import Clustering
+import SparseArrays
 
 """
     Mapper result type
 """
 struct Mapper
-    complex::SimplicialComplex
+    adj::AbstractMatrix{<:Integer}
     filter::Vector{<:Real}
-    patches::Vector{Vector{Int}}
+    patches::Vector{Vector{<:Integer}}
     centers::Matrix{<:Real}
 end
 
@@ -65,13 +66,13 @@ function mapper(X::AbstractMatrix{<:Real}; kwargs...)
 
     # combine all patches & determine which has overlaps
     P = length(patches)
-    cplx = SimplicialComplex([Simplex(i) for i in 1:P]...)
+    adj = SparseArrays.spzeros(UInt8, P, P)
     for i in 1:P
         println("$i => ", patches[i])
         for j in i+1:P
             overlap = intersect(patches[i], patches[j])
             if length(overlap) > 0
-                addsimplex!(cplx, Simplex(i, j))
+                adj[i,j] = 0x01
             end
         end
     end
@@ -79,7 +80,7 @@ function mapper(X::AbstractMatrix{<:Real}; kwargs...)
     # calculate centers of cover patches
     cntrs = hcat((mean(view(X, : ,p), dims=2) for p in patches)...)
 
-    return Mapper(cplx, flt, patches, cntrs)
+    return Mapper(adj, flt, patches, cntrs)
 end
 
 @recipe function f(mpr::Mapper; complex_layout = circular_layout,
@@ -91,9 +92,10 @@ end
     xlims --> extrema(xpos) .* 1.2
     ylims --> extrema(ypos) .* 1.2
 
-    # show nerve
-    for (i,c) in enumerate(cells(mpr.complex, 1))
-        idxs = values(c)
+    # show 1-skeleton
+    for i in 1:size(mpr.adj, 1)
+        idxs = findall(e->e>0, view(mpr.adj, i, :))
+        push!(idxs, i)
         @series begin
             seriestype := :path
             linewidth --> 2

@@ -14,21 +14,6 @@ function circlepoints(n, r; noise = 0.0)
     return x, y
 end
 
-"""
-    adjacency_matrix(cplx)
-
-Construct an adjacency matrix of a one-dimensional simplicial subcomplex of the complex `cplx`.
-"""
-function adjacency_matrix(cplx::SimplicialComplex)
-    N = size(cplx, 0)
-    adj = zeros(eltype(celltype(cplx)()),N,N)
-    for c in cells(cplx, 1)
-        idxs = values(c)
-        adj[idxs, idxs] .= 1
-    end
-    return adj
-end
-
 function gaussian(X::AbstractMatrix{<:Real}; dims=2)
     k = size(X, 1)
     Σ = cov(X, dims=dims)
