@@ -4,7 +4,7 @@ keywords = ["topological data analysis", "data science", "persistance"]
 license = "MIT"
 desc = "A Julia package for topological data analysis"
 repository = "https://github.com/wildart/TDA.jl.git"
-version = "0.1.0"
+version = "0.2.0"
 
 [deps]
 ComputationalHomology = "9393a4d0-be1e-45b0-9991-b60434c721e6"
@@ -16,6 +16,11 @@ RecipesBase = "3cdcf5f2-1ef4-517c-9805-6587b60abb01"
 Distances = "b4f34e82-e78d-54a5-968a-f98e89d6e8f7"
 MultivariateStats = "6f286f6a-111f-5878-ab1e-185364afe411"
 Random = "9a3f8284-a2c9-5f02-9a11-845980a1fd5c"
+
+[compat]
+MultivariateStats = "^0.7.0"
+ComputationalHomology = "^0.6.0"
+julia = "≥ 1.1.0"
 
 [extras]
 Test = "8dfed614-e22c-5e08-85e1-65c5234f0b40"

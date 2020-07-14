@@ -24,7 +24,8 @@ pkg> add TDA
 ```julia
 using TDA, ComputationalHomology, Plots
 # crate some intervals of various dimensions
-ints = vcat(intervals(0, 2.0=>6.0, 5.0=>10.0, 1.0=>Inf), intervals(1, 9.0=>12.0))
+ints = Dict(0=>diagram(2.0=>6.0, 5.0=>10.0, 1.0=>Inf), 1=>diagram(9.0=>12.0))
+
 # plot persistance diagram
 plot(ints)
 # plot barcode
