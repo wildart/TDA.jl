@@ -1,11 +1,12 @@
-@recipe function f(ints::Vector{T}) where {T<:AbstractInterval}
+@recipe function f(ints::PersistenceDiagram{T}) where {T<:Real}
     Dict(0=>ints)
 end
 
 # Plot intervals as a persistance diagram or barcode
-@recipe function f(dgm::Dict{Int, Vector{T}};
+@recipe function f(dgm::Dict{Int, PD};
                    maxoutdim=1,
-                   skipzero = false) where {T<:AbstractInterval}
+                   diagonal=true,
+                   skipzero = false) where {T<:Real, PD<:PersistenceDiagram{T}}
     # set default plot type
     seriestype --> :diagram
 
@@ -48,7 +49,7 @@ end
             end
         end
     else # Persistance Diagram
-        padding = (maxval - minval)*0.01 # 3%
+        padding = (maxval - minval)*0.02 # 3%
         xs = map(l->map(i->i.b,l), dgm[d] for d in dims)
         ys = map(l->map(i->isinf(i.d) ? maxval : i.d,l), dgm[d] for d in dims)
         mkr = map(l->map(i->isinf(i.d) ? :rect : :circle,l), dgm[d] for d in dims)
@@ -56,17 +57,19 @@ end
         legendtitle --> "Homology"
         # label --> ["Degree $(i-1)" for i in 1:length(dgm)]
         # xticks := minval:maxval
-        xlims := (minval-padding, maxval+padding)
         xguide := "birth"
+        xlims --> (minval-padding, maxval+padding)
         # yticks := 0:maxval
         yguide := "death"
-        ylims := (minval, maxval*1.03)
+        ylims --> (minval, maxval+padding)
 
-        @series begin
-            primary := false
-            seriestype := :path
-            linecolor := :black
-            [0, maxval], [0, maxval]
+        if diagonal
+            @series begin
+                primary := false
+                seriestype := :path
+                linecolor := :black
+                [minval, maxval], [minval, maxval]
+            end
         end
 
         for i in 1:length(xs)
@@ -75,7 +78,7 @@ end
                 primary := true
                 seriestype := :scatter
                 markershape := mkr[i][idxs]
-                markersize --> 2
+                markersize --> 3
                 label --> "Degree $(i-1)"
                 # markerstrokecolor := col
                 xs[i][idxs], ys[i][idxs]
